@@ -78,9 +78,7 @@ class Qiniu_request{
 			$options[CURLOPT_POSTFIELDS] = $this->body;
 		}
 		
-		$resp = new Qiniu_response();	
 		
-// 		$options[CURLOPT_HEADERFUNCTION] = array($this, '_header_func');
 		
 		curl_setopt_array($ch, $options);
 		$result = curl_exec($ch);
@@ -89,14 +87,18 @@ class Qiniu_request{
 			throw new Qiniu_Exception('An CURL error has occured, ' . curl_error($ch));
 		}
 		
-		$resp->Body = $result;
-		$resp->StatusCode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
-		$resp->Header['Content-Type'] = curl_getinfo($ch, CURLINFO_CONTENT_TYPE);
+		/**
+		 * 2014-6-26
+		 * 修改此处的传值方式，Response类的构造函数改为接收CURL的返回值
+		 */
+		$resp = new Qiniu_response($result);	
+		
+// 		$resp->Body = $result;
+// 		$resp->StatusCode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
+// 		$resp->Header['Content-Type'] = curl_getinfo($ch, CURLINFO_CONTENT_TYPE);
 		curl_close($ch);
 
 		return $resp;
-// return $this;
-		
 	}
 	
 	
@@ -106,62 +108,135 @@ class Qiniu_request{
  * HTTP响应相关类
  */
 class Qiniu_response{
-	/**
-	 * 返回的HTTP响应代码
-	 */
-	public $StatusCode;
 	
-	/**
-	 * 返回的HTTP头，数组
-	 */
-	public $Header;
 	
-	/**
-	 * 返回内容字节数
-	 */
-	public $ContentLength;
+// 	'code'     => $code,
+// 	'body'     => $body,
+// 	'headers'  => $headers,
+// 	'message'  => $message,
+// 	'protocol' => $protocol,
+// 	'data'     => $data
+
+	public $code;  //返回码  int
 	
-	/**
-	 * 返回的内容主体，
-	 * 如果内容为JSON格式将会被转换为数组的形式
-	 */
-	public $Body;
+	public $body;  //返回的内容 string | json
+	
+	public $headers = array();  //HTTP头   array
+	
+	public $message;   
+	
+	public $protocol; 
+	
+	public $data = array();  // body  array
 	
 
-
-	public function __construct($code = 200, $body = '')
-	{
-		$this->StatusCode = $code;
-		$this->Header = array();
-		$this->ContentLength = strlen($body);
-		
-		//将传入的JSON格式的主体转换为数组形式
-		$arr = json_decode($body, TRUE);
-		if($arr == NULL){
-			$this->Body = $body;
-		} else {
-			$this->Body = $arr;
+	/**
+	 * 通过CURL返回的内容构造Response对象
+	 * @param string $response
+	 */
+	public function __construct($response){
+		if (is_string($response) && ($parsed = $this->parse($response))) {
+			foreach ($parsed as $key => $value) {
+				$this->{$key} = $value;
+			}
 		}
+	}
+
+	/**
+	 * 获取指定的头部信息
+	 *
+	 * @param string $key
+	 * @param string $default
+	 * @return string
+	 */
+	public function header($key, $default = null){
+		$key = strtolower($key);
+		return !isset($this->headers[$key]) ? $this->headers[$key] : $default;
+	}
+	
+	/**
+	 * 解析CURL返回的文本
+	 *
+	 * @param $response
+	 * @return array
+	 */
+	private function parse($response){
+		//解析Header的内容
+		$body_pos = strpos($response, "\r\n\r\n");
+		$header_string = substr($response, 0, $body_pos);
+		if ($header_string == 'HTTP/1.1 100 Continue') {
+			$head_pos = $body_pos + 4;
+			$body_pos = strpos($response, "\r\n\r\n", $head_pos);
+			$header_string = substr($response, $head_pos, $body_pos - $head_pos);
+		}
+		$header_lines = explode("\r\n", $header_string);
+	
+		$headers = array();
+		$code = false;
+		$body = false;
+		$protocol = null;
+		$message = null;
+		$data = array();
+	
+		foreach ($header_lines as $index => $line) {
+			if ($index === 0) {
+				preg_match('/^(HTTP\/\d\.\d) (\d{3}) (.*?)$/', $line, $match);
+				list(, $protocol, $code, $message) = $match;
+				$code = (int)$code;
+				continue;
+			}
+			list($key, $value) = explode(":", $line);
+			$headers[strtolower(trim($key))] = trim($value);
+		}
+	
+		if (is_numeric($code)) {
+			$body_string = substr($response, $body_pos + 4);
+			if (!empty($headers['transfer-encoding']) && $headers['transfer-encoding'] == 'chunked') {
+				$body = $this->decodeChunk($body_string);
+			} else {
+				$body = (string)$body_string;
+			}
+			$result['header'] = $headers;
+		}
+	
+		// 自动解析数据
+		if (strpos($headers['content-type'], 'json')) {
+			$data = json_decode($body, true);
+		}
+	
+		return $code ? array(
+				'code'     => $code,
+				'body'     => $body,
+				'headers'  => $headers,
+				'message'  => $message,
+				'protocol' => $protocol,
+				'data'     => $data
+		) : false;
+	}
+	
+	/**
+	 * Decode chunk
+	 *
+	 * @param $str
+	 * @return string
+	 */
+	private function decodeChunk($str){
+		$body = '';
+		while ($str) {
+			$chunk_pos = strpos($str, "\r\n") + 2;
+			$chunk_size = hexdec(substr($str, 0, $chunk_pos));
+			$str = substr($str, $chunk_pos);
+			$body .= substr($str, 0, $chunk_size);
+		}
+		return $body;
 	}
 	
 	/**
 	 * 检查CURL请求是否返回了成功（200）
 	 */
 	public function is_OK(){
-		return ($this->StatusCode >= 200 && $this->StatusCode <= 299) ? TRUE : FALSE;
+		return ($this->code >= 200 && $this->code <= 299) ? TRUE : FALSE;
 	}
 	
-	/**
-	 * 获取错误描述信息
-	 */
-	public function err_msg(){
-		return isset($this->Body['error']) ? $this->Body['error'] : '';
-	}
-	
-	/**
-	 * 获取错误代码
-	 */
-	public function err_code(){
-		return isset($this->Body['code']) ? $this->Body['code'] : '';
-	}
+
 }

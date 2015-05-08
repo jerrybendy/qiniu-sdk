@@ -1,4 +1,5 @@
 <?php
+if ( ! defined('QINIU_INCLUDE_PATH')) exit('No direct script access allowed');
 /**
 * 七牛云存储缩略图生成模块
 * @author       Jerry
@@ -9,8 +10,6 @@
 * 最后更新：2014-07-08
 *       创建类
 */
-
-if ( ! defined('BASEPATH')) exit('No direct script access allowed');
 
 class Qiniu_Image_Exception extends Exception{
 }

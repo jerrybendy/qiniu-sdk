@@ -1,4 +1,5 @@
 <?php
+if ( ! defined('QINIU_INCLUDE_PATH')) exit('No direct script access allowed');
 /**
  * 上传部分
  * 
@@ -12,7 +13,6 @@
  * 【新增】简单上传允许使用上传策略控制上传的细节
  * 【修正】修复简单上传中可能出现的建立表单失败的问题
  */
-if ( ! defined('QINIU_INCLUDE_PATH')) exit('No direct script access allowed');
 
 class Qiniu_upload extends Qiniu{
 	private $_up_host = 'http://up.qiniu.com/';

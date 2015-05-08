@@ -6,11 +6,9 @@
  * @author     Jerry Bendy
  * @link       http://blog.icewingcc.com
  * @package    Qiniu
- * @version      Version 1.1
+ * @version      Version 1.1.2
  *
- * 最后更新：2014-8-26
- * 【新增】字符串上传函数
- * 【新增】简单上传允许使用上传策略控制上传的细节
+ * 最后更新：2015-5-8
  */
 
 /**
@@ -38,7 +36,7 @@ class Qiniu{
 	
 	/**
 	 * 定义Bucket的公开权限，即 public 还是 private
-	 * 这将会影响SDK在执行过程中具体使用哪种方式实现
+	 * 这将会影响程序在执行过程中具体使用哪种方式实现
 	 * 默认情况下将会设置此值为公开“public”
 	 */
 	protected $_auth = 'public';
@@ -57,11 +55,14 @@ class Qiniu{
 	 */
 	protected static  $_includes = array();
 	
+	#----------------------------------------------------------------
 	/**
-	 * 类的构造函数，如果有提前定义ACCESS KEY和SECRET KEY的话这里可以不加参数
-	 * @param array $config 为空时使用前面定义的设置，否则必须包含ak和sk两个元素
-	 * 						并且参数中的ak和sk的设置总是优先于常量中的定义
+	 * 构造函数
+	 * @param array $config 必须包含ak和sk两个元素
 	 * 						可选的bucket参数用于指定默认使用的空间名称
+	 * 						可选的 auth 参数指定空间的访问权限，默认为public
+	 * 						可选的 domain 参数指定空间的自定义域名（目前的七牛版本不再
+	 * 							使用之前的域名规则，所以此参数应为必填项）
 	 * @throws Qiniu_Exception
 	 */
 	function __construct($config = array()){
@@ -101,7 +102,7 @@ class Qiniu{
 		}
 	}
 	
-
+	#----------------------------------------------------------------
 	/**
 	 * 此函数允许使用 $this->qiniu->xx->xxxx();的形式调用子库中的函数
 	 * @param string $name 要调用的子库的名称
@@ -115,7 +116,6 @@ class Qiniu{
 		if(file_exists(QINIU_INCLUDE_PATH . 'qiniu_' . $class_name . '.php')){
 			require_once QINIU_INCLUDE_PATH . 'qiniu_' . $class_name . '.php';
 			$full_class_name = 'Qiniu_' . $class_name;
-			//$obj = new $full_class_name(array('ak'=>$this->_ak, 'sk'=>$this->_sk, 'bucket'=>$this->_bucket));
 			$obj = new $full_class_name($this);
 			
 			self::$_includes[$class_name] = $obj;
@@ -126,7 +126,7 @@ class Qiniu{
 		}
 	}
 	
-
+	#----------------------------------------------------------------
 	/**
 	 * 对于实现对不同访问权限专用函数的调用，如访问的某个函数不存在的话会自动
 	 * 尝试调用 func_public()，如果函数不存在则会调用 func_private()函数
@@ -135,15 +135,14 @@ class Qiniu{
 	 * @param $params 调用的参数
 	 */
 	function __call($func, $params){
-		if(method_exists($this, $func . '_public')){
-			return call_user_func_array(array($this, $func . '_public'),	 $params);
-		} elseif (method_exists($this, $func . '_private')){
-			return call_user_func_array(array($this, $func . '_private'), $params);
+		if(method_exists($this, $func . '_' . $this->_auth)){
+			return call_user_func_array(array($this, $func . '_' . $this->_auth),	 $params);
 		} else {
 			throw new Qiniu_Exception('Call to undefined method ' . $func);
 		}
 	}
 	
+	#----------------------------------------------------------------
 	/**
 	 * 供子类调用的函数，把参数中传入的filename统一输出成数组的形式
 	 * 并且数组的第一个元素是BUCKET名称，第二个元素是文件名

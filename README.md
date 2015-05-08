@@ -34,6 +34,7 @@ hfcorriez大神所写的PHP类库[原地址](https://github.com/hfcorriez/php-qi
 + [文件访问](#文件访问)
     - [生成访问链接](#生成访问链接)
     - [生成下载链接/可选参数](#生成下载链接/可选参数)
+    - [获取文件内容](#获取文件内容)
 + [文件操作](#文件操作)
     - [查看文件](#查看文件)
     - [复制文件](#复制文件)
@@ -184,6 +185,29 @@ $url = $qiniu->dl->get_url('abc.jpg');
 
 ```php
 $url = $qiniu->dl->get_url('abc.jpg', TRUE, 'new_file.jpg', 7200);
+```
+
+### 获取文件内容
+
+使用`get_content`函数返回文件的内容，或者指定一个位置，直接把获取到的内容保存到服务器中。
+
+`get_content`接收两个参数：
+
+* 参数一：需要获取内容的文件名
+* 参数二：文件将要保存的位置，设置为FALSE时只返回而不保存；设置为一个确切的文件路/路径将会保存内容到这个路径，并在成功时返回内容，失败时返回FALSE
+* 返回值：成功返回内容，失败返回FALSE
+
+```php
+// 直接返回文件内容
+$content = $qiniu->dl->get_content('abc.jpg');
+header('Content-Type: image/jpg');
+echo $content;
+
+// 保存文件
+$ret = $qiniu->dl->get_content('abc.jpg', 'save.jpg');
+if($ret){
+    echo '保存文件成功';
+}
 ```
 
 ## 文件操作
@@ -385,7 +409,7 @@ $arr = array(
     Qiniu_put_policy::QINIU_PP_DEADLINE => time()+7200,
     Qiniu_put_policy::QINIU_PP_SAVE_KEY => 'newFileName.jpg'
     );
-$qiniu->pub_policy->set_policy_array($arr);
+$qiniu->put_policy->set_policy_array($arr);
 ```
 
 设置好上传策略后可以使用`get_token()`函数生成基于刚才设置的策略的Token：
@@ -399,8 +423,8 @@ $token = $qiniu->put_policy->get_token();
 ```html
 <form method="post" action="http://upload.qiniu.com/" enctype="multipart/form-data">
     <input name="token" type="hidden" value="<?php echo $token;?>">
-  <input name="file" type="file" />
-  <input type="submit" />
+    <input name="file" type="file" />
+    <input type="submit" />
 </form>
 ```
 

@@ -6,9 +6,11 @@ if ( ! defined('QINIU_INCLUDE_PATH')) exit('No direct script access allowed');
  * @author       Jerry
  * @link            http://blog.icewingcc.com
  * @package    Qiniu
- * @since          Version 1.0
+ * @since          Version 1.1.2
  *
- * 最后更新：2014-7-6
+ * 最后更新：2015-5-8
+ * 2015-5-8
+ * -- 添加获取文件内容的函数
  * 
  * 2014-7-6
  * -- 修改函数的访问形式以及自定义域名的使用
@@ -20,6 +22,7 @@ class Qiniu_dl extends Qiniu{
 		parent::__construct($config);
 	}
 	
+	#----------------------------------------------------------------
 	/**
 	 * 获取公开资源的访问URL
 	 * @param $filename 资源名称
@@ -45,6 +48,7 @@ class Qiniu_dl extends Qiniu{
 		return $url;
 	}
 	
+	#----------------------------------------------------------------
 	/**
 	 * 获取私有资源的访问或下载链接
 	 * @param $filename 资源名称
@@ -59,6 +63,28 @@ class Qiniu_dl extends Qiniu{
 		
 		$token = $this->auth->sign($url);
 		return "{$url}&token={$token}";
+	}
+
+	#----------------------------------------------------------------
+	/**
+	 * 返回/保存指定文件的内容
+	 * @param  $filename 资源名称
+	 * @param  $saveas   指定要保存获取到文件的路径，为FALSE时不保存文件
+	 * @return string|bool   成功返回内容，失败返回FALSE（设置了saveas参数会在保存失败时返回FALSE）
+	 */
+	function get_content($filename, $saveas = FALSE){
+		$content = @file_get_contents($this->get_url($filename, FALSE, NULL, 600));
+		if($content){
+			if($saveas){
+				$ret = @file_put_contents($saveas, $content);
+				if($ret === FALSE){
+					return FALSE;
+				}
+			}
+			return $content;
+		} else {
+			return FALSE;
+		}
 	}
 	
 }

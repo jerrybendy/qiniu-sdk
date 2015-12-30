@@ -28,7 +28,7 @@ class Qiniu_request{
 	public $header = array();
 	
 	
-	function __construct($url, $body = ''){
+	public function __construct($url, $body = ''){
 		$this->url = $url;
 		$this->body = $body;
 	}
@@ -38,19 +38,21 @@ class Qiniu_request{
 	 * @param $name
 	 * @param $val
 	 */
-	function set_header($name, $val){
+	public function set_header($name, $val){
 		$this->header [$name] = $val;
 	}
 	
 // 	function set_post_data($data){
 		
 // 	}
-	
+
 	/**
 	 * 发送一个HTTP请求，并返回结果对应的Qiniu_response对象
+	 *
 	 * @return Qiniu_response
+	 * @throws Qiniu_Exception
 	 */
-	function make_request(){
+	public function make_request(){
 		$ch = curl_init();
 		$options = array(
 				CURLOPT_RETURNTRANSFER => true,
@@ -107,14 +109,6 @@ class Qiniu_request{
  * HTTP响应相关类
  */
 class Qiniu_response{
-	
-	
-// 	'code'     => $code,
-// 	'body'     => $body,
-// 	'headers'  => $headers,
-// 	'message'  => $message,
-// 	'protocol' => $protocol,
-// 	'data'     => $data
 
 	public $code;  //返回码  int
 	

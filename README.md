@@ -44,6 +44,7 @@ hfcorriez大神所写的PHP类库[原地址](https://github.com/hfcorriez/php-qi
     - [列举文件](#列举文件)
     - [继续列举文件](#继续列举文件)
     - [文件批量操作](#文件批量操作)
+    - [修改元信息](#修改元信息)
 + [文件上传](#文件上传)
     - [简单上传](#简单上传)
     - [字符串上传](#字符串上传)
@@ -341,6 +342,15 @@ $qiniu->rs->batch_add_stat('abc.jpg')
           ->batch_add_delete('ddd.jpg')
           ->do_batch();
 ```
+
+### 修改元信息
+
+主动修改指定资源的文件类型,即mineType
+
+```php
+$qiniu->rs->change_meta('abc.jpg', 'image/png');
+```
+
 
 ## 文件上传
 

@@ -50,9 +50,18 @@ class Qiniu_put_policy extends Qiniu{
 	 * 必须是公网上可以正常进行POST请求并能响应HTTP/1.1 200 OK的有效URL。
 	 * 另外，为了给客户端有一致的体验，我们要求 callbackUrl 返回包 Content-Type 为 "application/json"，
 	 * 即返回的内容必须是合法的 JSON 文本。
+	 *
+	 * 可以用分号分隔以指定多个回调地址
 	 */
 	const QINIU_PP_CALLBACK_URL = 'callbackUrl';
-	
+
+	/**
+	 * 上传成功后，七牛云向App-Server发送回调通知时的 Host 值。
+	 * 仅当同时设置了 callbackUrl 时有效。
+	 */
+	const QINIU_PP_CALLBACK_HOST = 'callbackHost';
+
+
 	/**
 	 * 上传成功后，七牛云向App-Server发送POST请求的数据
 	 * 支持魔法变量和自定义变量。
@@ -60,14 +69,31 @@ class Qiniu_put_policy extends Qiniu{
 	 * 如：key=$(key)&hash=$(etag)&w=$(imageInfo.width)&h=$(imageInfo.height)。
 	 */
 	const QINIU_PP_CALLBACK_BODY = 'callbackBody';
-	
+
+	/**
+	 * 上传成功后，七牛云向App-Server发送回调通知callbackBody的Content-Type。
+	 * 默认为application/x-www-form-urlencoded，也可设置为application/json。
+	 */
+	const QINIU_PP_CALLBACK_BODY_TYPE = 'callbackBodyType';
+
+	/**
+	 * 是否启用fetchKey上传模式。
+	 * 0为关闭，1为启用。具体见fetchKey上传模式。(http://developer.qiniu.com/docs/v6/api/reference/security/put-policy.html#fetch-key-explaination)
+	 */
+	const QINIU_PP_CALLBACK_FETCH_KEY = 'callbackFetchKey';
+
 	/**
 	 * 资源上传成功后触发执行的预转持久化处理指令列表
 	 * 每个指令是一个API规格字符串，多个指令用“;”分隔。
 	 * @link http://developer.qiniu.com/docs/v6/api/reference/security/put-policy.html#put-policy-persistent-ops-explanation
 	 */
 	const QINIU_PP_PERSISTENT_OPS = 'persistentOps';
-	
+
+    /**
+     * 转码队列名,资源上传成功后，触发转码时指定独立的队列进行转码。建议使用专用队列。
+     */
+    const QINIU_PP_PERSISTENT_PIPELINE = 'persistentPipeline';
+
 	/**
 	 * 接收预转持久化结果通知的URL
 	 * 必须是公网上可以正常进行POST请求并能响应HTTP/1.1 200 OK的有效URL。
@@ -133,14 +159,14 @@ class Qiniu_put_policy extends Qiniu{
 	private $_put_policy = array();
 	
 	
-	function __construct($config = array()){
+	public function __construct($config = array()){
 		parent::__construct($config);
 	}
 	
 	/**
 	 * 如果是直接调用此类库中的常量需要先初始化一下以便能够加载此类库
 	 */
-	function init(){
+	public function init(){
 		return $this;
 	}
 	
@@ -148,8 +174,9 @@ class Qiniu_put_policy extends Qiniu{
 	 * 设置一个PutPolicy键值对，设置数组时需要转换成JSON格式
 	 * @param string $policy_key
 	 * @param mix $policy_val
+     * @return Qiniu_put_policy
 	 */
-	function set_policy($policy_key, $policy_val){
+	public function set_policy($policy_key, $policy_val){
 		$this->_put_policy [$policy_key] = $policy_val;
 		return $this;
 	}
@@ -159,7 +186,7 @@ class Qiniu_put_policy extends Qiniu{
 	 * @param array $arr_policy
 	 * @return Qiniu_put_policy
 	 */
-	function set_policy_array(array $arr_policy){
+	public function set_policy_array(array $arr_policy){
 		$this->_put_policy = $arr_policy + $this->_put_policy;
 		return $this;
 	}
@@ -167,7 +194,7 @@ class Qiniu_put_policy extends Qiniu{
 	/**
 	 * 清空已经设置的策略
 	 */
-	function clear_policy(){
+	public function clear_policy(){
 		$this->_put_policy = array();
 	}
 	
@@ -175,7 +202,7 @@ class Qiniu_put_policy extends Qiniu{
 	 * 根据现有的上传策略生成一个Token，并返回
 	 * 在生成一次Token后将会自动清除已经设置的的上传策略
 	 */
-	function get_token(){
+	public function get_token(){
 		$pp = json_encode($this->_put_policy);
 		$token = $this->auth->sign_with_data($pp);
 		
@@ -184,9 +211,13 @@ class Qiniu_put_policy extends Qiniu{
 		
 		return $token;
 	}
-	
-	
-	function get_policy(){
+
+
+    /**
+     * 返回当前已经设置的策略部分数组
+     * @return array
+     */
+	public function get_policy(){
 		return $this->_put_policy;
 	}
 	

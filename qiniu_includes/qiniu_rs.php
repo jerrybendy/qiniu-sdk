@@ -23,7 +23,7 @@ class Qiniu_rs extends Qiniu{
 	 */
 	private $_rs_host = 'http://rs.qiniu.com';
 	
-	function __construct($config = array()){
+	public function __construct($config = array()){
 		parent::__construct($config);
 	}
 	
@@ -31,10 +31,10 @@ class Qiniu_rs extends Qiniu{
 	/**
 	 * 获取资源的Metadata信息
 	 * @param string|array $filename 要获取信息的文件名，字符串（文件名）或数组（Bucket和文件名）
-	 * @param $opt 可选参数：
+	 * @param array $opt 可选参数：
 	 * @return Qiniu_request 返回一个Request对象
 	 */
-	function stat($filename, $opt = array()){
+	public function stat($filename, $opt = array()){
 		$file = $this->_filename_to_array($filename);
 		
 		$uri = $this->_rs_host . '/stat/' . $this->auth->url_safe_base64_encode("{$file['bucket']}:{$file['key']}");
@@ -51,10 +51,10 @@ class Qiniu_rs extends Qiniu{
 	 * 移动（重命名）一个资源文件
 	 * @param string|array $src_file 要移动（重命名）的源文件，要求一个字符串或数组格式的资源文件名
 	 * @param string|array $dest_file 目标文件名
-	 * @param $opt 可选的部分参数
+	 * @param array $opt 可选的部分参数
 	 * @return Qiniu_response
 	 */
-	function move($src_file, $dest_file, $opt = array()){
+	public function move($src_file, $dest_file, $opt = array()){
 		$src = $this->_filename_to_array($src_file);
 		$dest = $this->_filename_to_array($dest_file);
 		
@@ -74,7 +74,7 @@ class Qiniu_rs extends Qiniu{
 	* @see Qiniu_rs::move
 	 * @return Qiniu_response
 	 */
-	function rename($src_file, $dest_file, $opt=array()){
+	public function rename($src_file, $dest_file, $opt=array()){
 		return $this->move($src_file, $dest_file, $opt);
 	}
 	
@@ -83,10 +83,10 @@ class Qiniu_rs extends Qiniu{
 	 * 复制一个资源文件
 	 * @param string|array $src_file 要复制的源文件，要求一个字符串或数组格式的资源文件名
 	 * @param string|array $dest_file 目标文件名
-	 * @param $opt 可选的部分参数
+	 * @param array $opt 可选的部分参数
 	 * @return Qiniu_response
 	 */
-	function copy($src_file, $dest_file, $opt = array()){
+	public function copy($src_file, $dest_file, $opt = array()){
 		$src = $this->_filename_to_array($src_file);
 		$dest = $this->_filename_to_array($dest_file);
 	
@@ -105,10 +105,10 @@ class Qiniu_rs extends Qiniu{
 	/**
 	 * 删除一个资源文件
 	 * @param string|array $filename 要获取信息的文件名，字符串（文件名）或数组（Bucket和文件名）
-	 * @param $opt 可选参数：
+	 * @param array $opt 可选参数：
 	 * @return Qiniu_request 返回一个Request对象
 	 */
-	function delete($filename, $opt = array()){
+	public function delete($filename, $opt = array()){
 		$file = $this->_filename_to_array($filename);
 	
 		$uri = $this->_rs_host . '/delete/' . $this->auth->url_safe_base64_encode("{$file['bucket']}:{$file['key']}");
@@ -128,7 +128,7 @@ class Qiniu_rs extends Qiniu{
 	 * @param string|array $filename 要保存到的Bucket和文件名
 	 * @return Qiniu_response
 	 */
-	function fetch($url, $filename){
+	public function fetch($url, $filename){
 		$fetch_host = 'http://iovip.qbox.me';
 		$file = $this->_filename_to_array($filename);
 		
@@ -149,7 +149,7 @@ class Qiniu_rs extends Qiniu{
 	 * @param string|array $filename 要更新的资源文件名
 	 * @return Qiniu_response
 	 */
-	function prefetch($filename){
+	public function prefetch($filename){
 		$fetch_host = 'http://iovip.qbox.me';
 		$file = $this->_filename_to_array($filename);
 	
@@ -181,7 +181,7 @@ class Qiniu_rs extends Qiniu{
 	 * @param string $marker 【可选】上一次列举返回的位置标记，作为本次列举的起点信息
 	 * @return Qiniu_response
 	 */
-	function ls($prefix = '', $limit = NULL, $delimiter = NULL, $bucket = NULL, $marker = NULL){
+	public function ls($prefix = '', $limit = NULL, $delimiter = NULL, $bucket = NULL, $marker = NULL){
 		$_ls_host = 'http://rsf.qbox.me'; //列举文件服务器地址
 		
 		$query = array();
@@ -213,17 +213,44 @@ class Qiniu_rs extends Qiniu{
 		
 		return $resp;
 	}
-	
+
 	/**
 	 * 继续上一次的列举文件操作
 	 * 使用与上一次ls列举文件相同的参数获取下一页数据，并在没有下一页数据时返回 FALSE
 	 * @return FALSE|Qiniu_response
 	 */
-	function ls_resume(){
+	public function ls_resume(){
 		if(empty($this->_ls_resume_params))
 			return FALSE;
 		return call_user_func_array(array($this, 'ls'), $this->_ls_resume_params);
 	}
+
+
+    /**
+     * 修改文件的元信息(MIME类型)
+     *
+     * @see http://developer.qiniu.com/docs/v6/api/reference/rs/chgm.html
+     *
+     * @param $filename
+     * @param $mime_type
+     * @return Qiniu_response
+     * @throws Qiniu_Exception
+     */
+	public function change_meta($filename, $mime_type){
+		$file = $this->_filename_to_array($filename);
+
+		$uri = $this->_rs_host . '/chgm/' . $this->auth->url_safe_base64_encode("{$file['bucket']}:{$file['key']}");
+		$uri = $uri . '/mime/' . $this->auth->url_safe_base64_encode($mime_type);
+		$token = $this->auth->sign_request($uri);
+
+		$req = new Qiniu_request($uri);
+		$req->set_header('Authorization',  'QBox ' . $token);
+
+		$resp = $req->make_request();
+		return $resp;
+	}
+
+
 	
 	/**
 	 * **************************************************************************
@@ -253,7 +280,7 @@ class Qiniu_rs extends Qiniu{
 	 * 添加一个获取文件元数据的操作到批量队列
 	 * @return Qiniu_rs
 	 */
-	function batch_add_stat($filename){
+	public function batch_add_stat($filename){
 		$this->_batch_ops [] = array(
 				'op' => 'stat',
 				'param' => array( $filename)
@@ -265,7 +292,7 @@ class Qiniu_rs extends Qiniu{
 	 * 添加一个移动/重命名操作到队列
 	 * @return Qiniu_rs
 	 */
-	function batch_add_move($src_file, $dest_file){
+	public function batch_add_move($src_file, $dest_file){
 		$this->_batch_ops [] = array(
 				'op' => 'move',
 				'param' => array($src_file, $dest_file)
@@ -277,7 +304,7 @@ class Qiniu_rs extends Qiniu{
 	 * 添加一个复制文件操作到队列
 	 * @return Qiniu_rs
 	 */
-	function batch_add_copy($src_file, $dest_file){
+	public function batch_add_copy($src_file, $dest_file){
 		$this->_batch_ops [] = array(
 				'op' => 'copy',
 				'param' => array($src_file, $dest_file)
@@ -289,7 +316,7 @@ class Qiniu_rs extends Qiniu{
 	 * 添加一个删除操作到队列
 	 * @return Qiniu_rs
 	 */
-	function batch_add_delete($filename){
+	public function batch_add_delete($filename){
 		$this->_batch_ops [] = array(
 				'op' => 'delete',
 				'param' => array( $filename)
@@ -301,7 +328,7 @@ class Qiniu_rs extends Qiniu{
 	 * 清空队列中的操作
 	 * @return Qiniu_rs
 	 */
-	function batch_clear(){
+	public function batch_clear(){
 		$this->_batch_ops = array();
 		return $this;
 	}
@@ -318,9 +345,11 @@ class Qiniu_rs extends Qiniu{
 	 *      	[1] => array (......
 	 *      ....
 	 *      ) )
-	 *      
+	 *
+	 * @return Qiniu_response
+	 * @throws Qiniu_RS_Exception
 	 */
-	function do_batch($ops = array()){
+	public function do_batch($ops = array()){
 		if(!empty($ops)){
 			$this->_batch_ops = $ops;
 		}

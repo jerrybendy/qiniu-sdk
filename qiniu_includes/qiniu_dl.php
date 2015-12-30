@@ -18,20 +18,20 @@ if ( ! defined('QINIU_INCLUDE_PATH')) exit('No direct script access allowed');
 
 class Qiniu_dl extends Qiniu{
 	
-	function __construct($config = array()){
+	public function __construct($config = array()){
 		parent::__construct($config);
 	}
 	
 	#----------------------------------------------------------------
 	/**
 	 * 获取公开资源的访问URL
-	 * @param $filename 资源名称
-	 * @param $download 是否是创建一个下载资源的URL
-	 * @param $dl_filename 仅在$download为TRUE时，下载的文件名
+	 * @since v1.0
+	 * @param string|array $filename 资源名称
+	 * @param bool $download 是否是创建一个下载资源的URL
+	 * @param string $dl_filename 仅在$download为TRUE时，下载的文件名
 	 * @return string 返回生成的访问或下载URL
 	 */
-	function get_url_public($filename, $download = FALSE, $dl_filename = NULL, $expried = 7200){
-		$url = '';
+	public function get_url_public($filename, $download = FALSE, $dl_filename = NULL, $expried = 7200){
 		$file = $this->_filename_to_array($filename);
 		if($this->_domain){
 			$url = $this->_domain . $file['key'];
@@ -51,13 +51,14 @@ class Qiniu_dl extends Qiniu{
 	#----------------------------------------------------------------
 	/**
 	 * 获取私有资源的访问或下载链接
-	 * @param $filename 资源名称
-	 * @param $download 是否是创建一个下载资源的URL
-	 * @param $dl_filename  仅在$download为TRUE时，下载的文件名
-	 * @param $expried 链接的有效时间，默认是2小时
+	 * @since v1.0
+	 * @param string|array $filename 资源名称
+	 * @param bool $download 是否是创建一个下载资源的URL
+	 * @param string $dl_filename  仅在$download为TRUE时，下载的文件名
+	 * @param int $expried 链接的有效时间，默认是2小时
 	 * @return string 返回生成的访问或下载的URL
 	 */
-	function get_url_private($filename, $download = FALSE, $dl_filename = NULL, $expried = 7200){
+	public function get_url_private($filename, $download = FALSE, $dl_filename = NULL, $expried = 7200){
 		$url = $this->get_url_public($filename, $download, $dl_filename);
 		$url .= (strpos($url, '?') ? '&' : '?') . 'e=' . (time() + $expried);
 		
@@ -68,11 +69,12 @@ class Qiniu_dl extends Qiniu{
 	#----------------------------------------------------------------
 	/**
 	 * 返回/保存指定文件的内容
-	 * @param  $filename 资源名称
-	 * @param  $saveas   指定要保存获取到文件的路径，为FALSE时不保存文件
+	 * @since v1.0
+	 * @param string|array $filename 资源名称
+	 * @param string|bool $saveas   指定要保存获取到文件的路径，为FALSE时不保存文件
 	 * @return string|bool   成功返回内容，失败返回FALSE（设置了saveas参数会在保存失败时返回FALSE）
 	 */
-	function get_content($filename, $saveas = FALSE){
+	public function get_content($filename, $saveas = FALSE){
 		$content = @file_get_contents($this->get_url($filename, FALSE, NULL, 600));
 		if($content){
 			if($saveas){

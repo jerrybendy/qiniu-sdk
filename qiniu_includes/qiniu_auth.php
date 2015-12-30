@@ -5,7 +5,7 @@ if ( ! defined('QINIU_INCLUDE_PATH')) exit('No direct script access allowed');
  *
  * @author       Jerry
  * @link            http://blog.icewingcc.com
- * @package    Qiniu
+ * @package    		Qiniu
  * @since          Version 1.0
  *
  * 最后更新：2014-4-7
@@ -13,23 +13,27 @@ if ( ! defined('QINIU_INCLUDE_PATH')) exit('No direct script access allowed');
 
 class Qiniu_auth extends Qiniu{
 	
-	function __construct($config = array()){
+	public function __construct($config = array()){
 		parent::__construct($config);
 	}
-	
+
 	/**
 	 * 获取一个hmac_sha1签名字符串，并将其与AK连接
-	 * @param unknown_type $data
+	 *
+	 * @since v1.0
+	 * @param mixed $data
+	 * @return string
 	 */
-	function sign($data){
+	public function sign($data){
 		$sign = hash_hmac('sha1', $data, $this->_sk, true);
 		return $this->_ak . ':' . $this->url_safe_base64_encode($sign);
 	}
-	
+
 	/**
-	 * 
-	 * @param unknown_type $url
-	 * @param unknown_type $incbody
+	 * @since v1.0
+	 * @param string $url
+	 * @param string $incbody
+	 * @return string
 	 */
 	public function sign_request($url, $incbody = ''){
 		$url = parse_url($url);
@@ -47,10 +51,13 @@ class Qiniu_auth extends Qiniu{
 		}
 		return $this->Sign($data);
 	}
-	
+
 	/**
 	 * 为一个包含数据的字符串签名（上传策略）
+	 *
+	 * @since v1.0
 	 * @param $data
+	 * @return string
 	 */
 	public function sign_with_data($data){
 		$data = $this->url_safe_base64_encode($data);
@@ -60,10 +67,11 @@ class Qiniu_auth extends Qiniu{
 	
 	/**
 	 * 对字符串进行URL安全的Base64编码
-	 * @param unknown_type $str
+	 * @since v1.0
+	 * @param string $str
 	 * @return mixed
 	 */
-	function url_safe_base64_encode($str){
+	public function url_safe_base64_encode($str){
 		$find = array('+', '/');
 		$replace = array('-', '_');
 		return str_replace($find, $replace, base64_encode($str));
@@ -71,10 +79,11 @@ class Qiniu_auth extends Qiniu{
 	
 	/**
 	 * 对URL安全的Base64编码字符串进行解码
-	 * @param unknown_type $str
+	 * @since v1.0
+	 * @param string $str
 	 * @return string
 	 */
-	function url_safe_base64_decode($str)
+	public function url_safe_base64_decode($str)
 	{
 		$find = array('-', '_');
 		$replace = array('+', '/');
@@ -83,10 +92,11 @@ class Qiniu_auth extends Qiniu{
 	
 	/**
 	 * 对一个字符串进行hmac_sha1签名，并返回签名后的字符串
-	 * @param $str 源字符串
-	 * @return 返回签名后的字符串
+	 * @since v1.0
+	 * @param string $str 源字符串
+	 * @return string 返回签名后的字符串
 	 */
-	function hmac_sha1($str){
+	public function hmac_sha1($str){
 		$sign = hash_hmac('sha1', $str, $this->_sk, true);
 		return $this->url_safe_base64_encode($sign);
 	}

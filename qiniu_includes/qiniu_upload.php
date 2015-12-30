@@ -27,6 +27,7 @@ class Qiniu_upload extends Qiniu{
 	
 	/**
 	 * 上传一个文件到云存储
+	 * @since v1.0
 	 * @param string $filetoupload 要上传的文件（文件路径）
 	 * @param string $saveKey 要存储为的文件名（如果让七牛设置可将此参数置为空）
 	 * @param string $saveBucket 要上传到的空间名（为空时表示使用默认的Bucket）
@@ -34,6 +35,7 @@ class Qiniu_upload extends Qiniu{
 	 *                        设置这个参数为TRUE时需要使用Qiniu_put_policy类设置上传策略，函数将会自动调用
 	 * @param int $expired 上传执行的有效期
 	 * @return string|Qiniu_response
+	 * @throws Qiniu_Exception
 	 */
 	function upload($filetoupload, $saveKey, $saveBucket = '', $use_custom_put_policy = FALSE, $expired = 7200){
 		if(file_exists($filetoupload) && is_file($filetoupload)){
@@ -50,6 +52,7 @@ class Qiniu_upload extends Qiniu{
 	
 	/**
 	 * 上传一个字符串到七牛，并存储为指定的文件名
+	 * @since v1.0
 	 * @param string $filetoupload 要上传的文件（文件路径）
 	 * @param string $saveKey 要存储为的文件名（如果让七牛设置可将此参数置为空）
 	 * @param string $saveBucket 要上传到的空间名（为空时表示使用默认的Bucket）
@@ -103,6 +106,7 @@ class Qiniu_upload extends Qiniu{
 	/**
 	 * Parse multi form
 	 *
+	 * @since v1.0
 	 * @param array $form
 	 * @param       $files
 	 * @throws \InvalidArgumentException

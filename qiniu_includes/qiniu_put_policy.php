@@ -165,6 +165,7 @@ class Qiniu_put_policy extends Qiniu{
 	
 	/**
 	 * 如果是直接调用此类库中的常量需要先初始化一下以便能够加载此类库
+     * @since v1.0
 	 */
 	public function init(){
 		return $this;
@@ -172,8 +173,9 @@ class Qiniu_put_policy extends Qiniu{
 	
 	/**
 	 * 设置一个PutPolicy键值对，设置数组时需要转换成JSON格式
+     * @since v1.0
 	 * @param string $policy_key
-	 * @param mix $policy_val
+	 * @param mixed $policy_val
      * @return Qiniu_put_policy
 	 */
 	public function set_policy($policy_key, $policy_val){
@@ -183,6 +185,7 @@ class Qiniu_put_policy extends Qiniu{
 	
 	/**
 	 * 批量设置上传策略，如上传的值是数组需要转换成JSON格式
+     * @since v1.0
 	 * @param array $arr_policy
 	 * @return Qiniu_put_policy
 	 */
@@ -193,6 +196,7 @@ class Qiniu_put_policy extends Qiniu{
 	
 	/**
 	 * 清空已经设置的策略
+     * @since v1.0
 	 */
 	public function clear_policy(){
 		$this->_put_policy = array();
@@ -201,6 +205,8 @@ class Qiniu_put_policy extends Qiniu{
 	/**
 	 * 根据现有的上传策略生成一个Token，并返回
 	 * 在生成一次Token后将会自动清除已经设置的的上传策略
+     * @since v1.0
+     * @return string
 	 */
 	public function get_token(){
 		$pp = json_encode($this->_put_policy);
@@ -215,6 +221,7 @@ class Qiniu_put_policy extends Qiniu{
 
     /**
      * 返回当前已经设置的策略部分数组
+     * @since v1.0
      * @return array
      */
 	public function get_policy(){

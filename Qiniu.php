@@ -58,6 +58,7 @@ class Qiniu{
 	#----------------------------------------------------------------
 	/**
 	 * 构造函数
+     * @since v1.0
 	 * @param array $config 必须包含ak和sk两个元素
 	 * 						可选的bucket参数用于指定默认使用的空间名称
 	 * 						可选的 auth 参数指定空间的访问权限，默认为public
@@ -91,7 +92,7 @@ class Qiniu{
 			
 			//自定义域名
 			if(isset($config['domain']) && $config['domain'])
-				$this->_domain = $config['domain'];
+				$this->_domain = rtrim($config['domain'], '/') . '/';
 			
 		} elseif($config instanceof Qiniu){
 			$this->_ak = $config->_ak;
@@ -103,11 +104,15 @@ class Qiniu{
 	}
 	
 	#----------------------------------------------------------------
-	/**
-	 * 此函数允许使用 $this->qiniu->xx->xxxx();的形式调用子库中的函数
-	 * @param string $name 要调用的子库的名称
-	 * @return 返回子库的对象
-	 */
+    /**
+     * 此函数允许使用 $this->qiniu->xx->xxxx();的形式调用子库中的函数
+     *
+     * @since v1.0
+     * @param string $class_name
+     * @return object 返回子库的对象
+     * @throws Qiniu_Exception
+     * @internal param string $name 要调用的子库的名称
+     */
 	function __get($class_name){
 		if(array_key_exists($class_name, self::$_includes))
 			return self::$_includes[$class_name];
@@ -127,13 +132,17 @@ class Qiniu{
 	}
 	
 	#----------------------------------------------------------------
-	/**
-	 * 对于实现对不同访问权限专用函数的调用，如访问的某个函数不存在的话会自动
-	 * 尝试调用 func_public()，如果函数不存在则会调用 func_private()函数
-	 * 如果两个函数都不存在的话抛出一个错误
-	 * @param $func 函数名
-	 * @param $params 调用的参数
-	 */
+    /**
+     * 对于实现对不同访问权限专用函数的调用，如访问的某个函数不存在的话会自动
+     * 尝试调用 func_public()，如果函数不存在则会调用 func_private()函数
+     * 如果两个函数都不存在的话抛出一个错误
+     *
+     * @since v1.0
+     * @param string $func   函数名
+     * @param array  $params 调用的参数
+     * @return mixed
+     * @throws Qiniu_Exception
+     */
 	function __call($func, $params){
 		if(method_exists($this, $func . '_' . $this->_auth)){
 			return call_user_func_array(array($this, $func . '_' . $this->_auth),	 $params);
@@ -146,6 +155,7 @@ class Qiniu{
 	/**
 	 * 供子类调用的函数，把参数中传入的filename统一输出成数组的形式
 	 * 并且数组的第一个元素是BUCKET名称，第二个元素是文件名
+     * @since v1.0
 	 * @param string|array $filename 传入的字符串或数组
 	 * @return array
 	 */

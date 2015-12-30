@@ -30,6 +30,7 @@ class Qiniu_rs extends Qiniu{
 	
 	/**
 	 * 获取资源的Metadata信息
+     * @since v1.0
 	 * @param string|array $filename 要获取信息的文件名，字符串（文件名）或数组（Bucket和文件名）
 	 * @param array $opt 可选参数：
 	 * @return Qiniu_request 返回一个Request对象
@@ -49,6 +50,7 @@ class Qiniu_rs extends Qiniu{
 
 	/**
 	 * 移动（重命名）一个资源文件
+     * @since v1.0
 	 * @param string|array $src_file 要移动（重命名）的源文件，要求一个字符串或数组格式的资源文件名
 	 * @param string|array $dest_file 目标文件名
 	 * @param array $opt 可选的部分参数
@@ -71,7 +73,8 @@ class Qiniu_rs extends Qiniu{
 	
 	/**
 	 * 重命名一个文件
-	* @see Qiniu_rs::move
+     * @since v1.0
+	 * @see Qiniu_rs::move
 	 * @return Qiniu_response
 	 */
 	public function rename($src_file, $dest_file, $opt=array()){
@@ -81,6 +84,7 @@ class Qiniu_rs extends Qiniu{
 	
 	/**
 	 * 复制一个资源文件
+     * @since v1.0
 	 * @param string|array $src_file 要复制的源文件，要求一个字符串或数组格式的资源文件名
 	 * @param string|array $dest_file 目标文件名
 	 * @param array $opt 可选的部分参数
@@ -104,6 +108,7 @@ class Qiniu_rs extends Qiniu{
 	
 	/**
 	 * 删除一个资源文件
+     * @since v1.0
 	 * @param string|array $filename 要获取信息的文件名，字符串（文件名）或数组（Bucket和文件名）
 	 * @param array $opt 可选参数：
 	 * @return Qiniu_request 返回一个Request对象
@@ -124,6 +129,7 @@ class Qiniu_rs extends Qiniu{
 	
 	/**
 	 * 抓取一个网络文件并存储到云空间中
+     * @since v1.0
 	 * @param string $url 要抓取的文件 的URL
 	 * @param string|array $filename 要保存到的Bucket和文件名
 	 * @return Qiniu_response
@@ -146,6 +152,7 @@ class Qiniu_rs extends Qiniu{
 	
 	/**
 	 * 更新镜像资源
+     * @since v1.0
 	 * @param string|array $filename 要更新的资源文件名
 	 * @return Qiniu_response
 	 */
@@ -173,7 +180,8 @@ class Qiniu_rs extends Qiniu{
 	/**
 	 * 列举资源
 	 * 本接口用于将七牛中指定的文件分批列出
-	 * 
+	 *
+     * @since v1.0
 	 * @param string $prefix 指定前缀，只有资源名匹配该前缀的资源会被列出。缺省值为空字符串。
 	 * @param int $limit 【可选】列举的条目数，范围1-1000，默认为1000
 	 * @param string $delimiter 【可选】指定目录分隔符，列出所有公共前缀（模拟列出目录效果），默认为空
@@ -217,6 +225,7 @@ class Qiniu_rs extends Qiniu{
 	/**
 	 * 继续上一次的列举文件操作
 	 * 使用与上一次ls列举文件相同的参数获取下一页数据，并在没有下一页数据时返回 FALSE
+     * @since v1.0
 	 * @return FALSE|Qiniu_response
 	 */
 	public function ls_resume(){
@@ -230,7 +239,7 @@ class Qiniu_rs extends Qiniu{
      * 修改文件的元信息(MIME类型)
      *
      * @see http://developer.qiniu.com/docs/v6/api/reference/rs/chgm.html
-     *
+     * @since v1.0
      * @param $filename
      * @param $mime_type
      * @return Qiniu_response
@@ -278,6 +287,7 @@ class Qiniu_rs extends Qiniu{
 	
 	/**
 	 * 添加一个获取文件元数据的操作到批量队列
+     * @since v1.0
 	 * @return Qiniu_rs
 	 */
 	public function batch_add_stat($filename){
@@ -290,6 +300,7 @@ class Qiniu_rs extends Qiniu{
 	
 	/**
 	 * 添加一个移动/重命名操作到队列
+     * @since v1.0
 	 * @return Qiniu_rs
 	 */
 	public function batch_add_move($src_file, $dest_file){
@@ -302,6 +313,7 @@ class Qiniu_rs extends Qiniu{
 	
 	/**
 	 * 添加一个复制文件操作到队列
+     * @since v1.0
 	 * @return Qiniu_rs
 	 */
 	public function batch_add_copy($src_file, $dest_file){
@@ -314,6 +326,7 @@ class Qiniu_rs extends Qiniu{
 	
 	/**
 	 * 添加一个删除操作到队列
+     * @since v1.0
 	 * @return Qiniu_rs
 	 */
 	public function batch_add_delete($filename){
@@ -326,6 +339,7 @@ class Qiniu_rs extends Qiniu{
 	
 	/**
 	 * 清空队列中的操作
+     * @since v1.0
 	 * @return Qiniu_rs
 	 */
 	public function batch_clear(){
@@ -346,6 +360,7 @@ class Qiniu_rs extends Qiniu{
 	 *      ....
 	 *      ) )
 	 *
+     * @since v1.0
 	 * @return Qiniu_response
 	 * @throws Qiniu_RS_Exception
 	 */

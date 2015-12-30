@@ -53,6 +53,7 @@ hfcorriez大神所写的PHP类库[原地址](https://github.com/hfcorriez/php-qi
 	- [创建缩略图](#创建缩略图)
 	- [获取图片信息](#获取图片信息)
 	- [高级图像处理](#高级图像处理)
+	- [获取图片EXIF](#获取图片EXIF)
 
 
 # 使用方法
@@ -483,3 +484,14 @@ $url = $qiniu->image->mogr('abc.jpg', array(
 echo $url;
 ```
 
+### 获取图片EXIF
+
+获取图像资源的标准EXIF信息, 详见[官方文档](http://developer.qiniu.com/docs/v6/api/reference/fop/image/exif.html)
+
+```php
+$req = $qiniu->image->exif('photo.jpg');
+if($req->isOk()){
+    $exif = $req->body;
+}
+
+```

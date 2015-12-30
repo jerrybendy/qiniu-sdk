@@ -35,6 +35,7 @@ class Qiniu_request{
 	
 	/**
 	 * 设置一个HTTP头
+	 * @since v1.0
 	 * @param $name
 	 * @param $val
 	 */
@@ -49,17 +50,21 @@ class Qiniu_request{
 	/**
 	 * 发送一个HTTP请求，并返回结果对应的Qiniu_response对象
 	 *
+	 * @since v1.0
+	 *
+	 * @param string $method 请求发出的方式,默认是POST方式
+	 *
 	 * @return Qiniu_response
 	 * @throws Qiniu_Exception
 	 */
-	public function make_request(){
+	public function make_request($method = 'POST'){
 		$ch = curl_init();
 		$options = array(
 				CURLOPT_RETURNTRANSFER => true,
   				CURLOPT_HEADER => true,
 				CURLOPT_SSL_VERIFYPEER => false,
 				CURLOPT_SSL_VERIFYHOST => false,
-				CURLOPT_CUSTOMREQUEST  => 'POST',
+				CURLOPT_CUSTOMREQUEST  => $method,
 				CURLOPT_URL => $this->url
 		);
 		
@@ -107,6 +112,8 @@ class Qiniu_request{
 
 /**
  * HTTP响应相关类
+ *
+ * @since v1.0
  */
 class Qiniu_response{
 
@@ -125,6 +132,7 @@ class Qiniu_response{
 
 	/**
 	 * 通过CURL返回的内容构造Response对象
+	 * @since v1.0
 	 * @param string $response
 	 */
 	public function __construct($response){
@@ -138,6 +146,7 @@ class Qiniu_response{
 	/**
 	 * 获取指定的头部信息
 	 *
+	 * @since v1.0
 	 * @param string $key
 	 * @param string $default
 	 * @return string
@@ -150,6 +159,7 @@ class Qiniu_response{
 	/**
 	 * 解析CURL返回的文本
 	 *
+	 * @since v1.0
 	 * @param $response
 	 * @return array
 	 */
@@ -210,6 +220,7 @@ class Qiniu_response{
 	/**
 	 * Decode chunk
 	 *
+	 * @since v1.0
 	 * @param $str
 	 * @return string
 	 */
@@ -226,6 +237,8 @@ class Qiniu_response{
 	
 	/**
 	 * 检查CURL请求是否返回了成功（200）
+	 * @since v1.0
+	 * @return bool
 	 */
 	public function is_OK(){
 		return ($this->code >= 200 && $this->code <= 299) ? TRUE : FALSE;

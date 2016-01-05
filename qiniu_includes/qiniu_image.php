@@ -15,7 +15,26 @@ class Qiniu_Image_Exception extends Exception{
 }
 
 class Qiniu_image extends Qiniu{
-	
+
+    /**
+     * 定义添加水印的位置,位置使用九宫格的编号来排序
+     *
+     * @var array
+     */
+    protected $_position_string = array(
+        1   => 'NorthWest',
+        2   => 'North',
+        3   => 'NorthEast',
+        4   => 'West',
+        5   => 'Center',
+        6   => 'East',
+        7   => 'SouthWest',
+        8   => 'South',
+        9   => 'SouthEast'
+    );
+
+
+
 	public function __construct($config = array()){
 		parent::__construct($config);
 	
@@ -127,16 +146,27 @@ class Qiniu_image extends Qiniu{
 	 */
 	public function exif($filename){
 
-		$filename = $this->_filename_to_array($filename);
-
-		$filename['key'] .= '?exif';
-
-		$url = $this->dl->get_url(array($filename['bucket'], $filename['key']));
+		$url = $this->dl->get_url($filename, FALSE, NULL, 7200, 'exif');
 
 		$req = new Qiniu_request($url);
 
 		$resp = $req->make_request('GET');
 		return $resp;
+
+	}
+
+
+	public function water_mark_image($filename, $image, $position = 7, $opacity = 100, $offsetX = 10, $offsetY = 10){
+
+        if(is_int($position)){
+            if($position > 0 && $position < 10){
+                $position = $this->_position_string[$position];
+            } else {
+                throw new Qiniu_Image_Exception('Water mark position only can be an int or string value, and must between 1 and 9');
+            }
+        }
+
+
 
 	}
 

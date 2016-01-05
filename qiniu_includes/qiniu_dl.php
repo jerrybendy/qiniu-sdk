@@ -29,22 +29,27 @@ class Qiniu_dl extends Qiniu{
 	 * @param string|array $filename 资源名称
 	 * @param bool $download 是否是创建一个下载资源的URL
 	 * @param string $dl_filename 仅在$download为TRUE时，下载的文件名
+	 * @param string $_query_string 仅用于组装带查询字符串的网址使用
 	 * @return string 返回生成的访问或下载URL
 	 */
-	public function get_url_public($filename, $download = FALSE, $dl_filename = NULL, $expried = 7200){
+	public function get_url_public($filename, $download = FALSE, $dl_filename = NULL, $expried = 7200, $_query_string = ''){
 		$file = $this->_filename_to_array($filename);
 		if($this->_domain){
 			$url = $this->_domain . $file['key'];
 		} else {
 			$url = "http://{$file['bucket']}.qiniudn.com/{$file['key']}";
 		}
-		
+
 		if($download){
 			$url .= '?download';
 			if($dl_filename)
 				$url .= '/' . $dl_filename;
 		}
-		
+
+		if($_query_string){
+			$url .= (strpos($url, '?') ? '&' : '?') . $_query_string;
+		}
+
 		return $url;
 	}
 	
@@ -56,10 +61,11 @@ class Qiniu_dl extends Qiniu{
 	 * @param bool $download 是否是创建一个下载资源的URL
 	 * @param string $dl_filename  仅在$download为TRUE时，下载的文件名
 	 * @param int $expried 链接的有效时间，默认是2小时
+	 * @param string $_query_string 仅用于组装带查询字符串的网址使用
 	 * @return string 返回生成的访问或下载的URL
 	 */
-	public function get_url_private($filename, $download = FALSE, $dl_filename = NULL, $expried = 7200){
-		$url = $this->get_url_public($filename, $download, $dl_filename);
+	public function get_url_private($filename, $download = FALSE, $dl_filename = NULL, $expried = 7200, $_query_string = ''){
+		$url = $this->get_url_public($filename, $download, $dl_filename, $expried, $_query_string);
 		$url .= (strpos($url, '?') ? '&' : '?') . 'e=' . (time() + $expried);
 		
 		$token = $this->auth->sign($url);

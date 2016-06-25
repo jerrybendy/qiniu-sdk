@@ -1,16 +1,26 @@
 {
     "name": "jerrybendy/qiniu-sdk",
-    "description": "another Qiniu sdk for php",
-    "minimum-stability": "stable",
+    "description": "a Qiniu sdk for php with full feature",
+    "keywords": ["qiniu"],
+    "homepage": "https://github.com/jerrybendy/qiniu-sdk",
     "license": "MIT",
     "authors": [
         {
             "name": "Jerry Bendy",
-            "email": "jerry@icewingcc.com"
+            "email": "jerry@icewingcc.com",
+            "homepage": "http://blog.icewingcc.com"
         }
     ],
+    "support": {
+        "email": "jerry@icewingcc.com",
+        "issues": "https://github.com/jerrybendy/qiniu-sdk/issues",
+        "wiki": "https://github.com/jerrybendy/qiniu-sdk/wiki"
+    },
     "require": {
         "php": ">=5.3.9"
+    },
+    "require-dev": {
+        "phpunit/phpunit": "~5.1"
     },
     "autoload": {
         "psr-4": {
